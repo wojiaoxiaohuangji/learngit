@@ -1,6 +1,3 @@
-/* by hugang at 6/8 9:40 */
-  /* mod by jevan at 31/8 11:56 */
-  /* read some disk a sector */
 #define __USE_FILE_OFFSET64		//为了调用llseek，open打开大文件，需要添加宏修正
 #define __USE_LARGEFILE64
 #define _LARGEFILE64_SOURCE
@@ -110,26 +107,18 @@ void   itoa(   unsigned   long   val,   char   *buf,   unsigned   radix   )
                 char   *firstdig;                   /*   pointer   to   first   digit   */   
                 char   temp;                             /*   temp   char   */   
                 unsigned   digval;                 /*   value   of   digit   */   
-
                 p   =   buf;   
                 firstdig   =   p;                       /*   save   pointer   to   first   digit   */   
-
                 do   {   
                         digval   =   (unsigned)   (val   %   radix);   
                         val   /=   radix;               /*   get   next   digit   */   
-
                         /*   convert   to   ascii   and   store   */   
                         if   (digval   >   9)   
                                 *p++=(char)(digval-10+'a');     /*   a   letter   */   
                         else   
                                 *p++= (char)(digval+'0');               /*   a   digit   */   
                 }   while   (val   >   0);   
-
-                /*   We   now   have   the   digit   of   the   number   in   the   buffer,   but   in   reverse   
-                      order.     Thus   we   reverse   them   now.   */   
-
-                *p--   =   '\0';                         /*   terminate   string;   p   points   to   last   digit   */   
-
+                *p--   =   '\0';                           
                 do   {   
                         temp   =   *p;   
                         *p   =   *firstdig;   
@@ -158,8 +147,6 @@ static u32 calculate_CRC32_2(void *pStart, u32 uSize)
 	itoa(data_all, str, 10);
 	uSize=strlen(str);
 	pData=str;
-	//printf("The number 'num' is %d and the string 'str' is %s. \n" ,
-//                       num, str);
 	while (uSize --)
 	{
 		uCRCValue = crc32c_table[(uCRCValue ^ *pData++) & 0xFFL] ^ (uCRCValue >> 8);
@@ -187,12 +174,6 @@ static u32 calculate_CRC32(void *pStart, u32 uSize,int Flag)	//暂时没用到
 	return sectorsize;
   }
   
-  /** 
- 24 * read_disk_sector: 
-  * @dev: raw disk FILE * 
-  * @sector: 
-  * return is the disk sectorsize 
-  * */
   extern int errno;
   int read_disk_sector (int fd, unsigned long sector, char **p,int sectorcount)
   {
@@ -266,7 +247,7 @@ int get_data_end(char *buf)
 		return 0;
 	}
 	/* open it */
-	fd = open (dev, O_RDWR|O_LARGEFILE);//|O_SYNC
+	fd = open (dev, O_RDWR|O_LARGEFILE);
 	if (fd == -1)
 	{
 		printf("open ailed\n");
@@ -282,7 +263,6 @@ int get_data_end(char *buf)
 		printf ("malloc memory failed\n"); 
 		return (-1);
 	}
-	//arg=atoi(argv[1]);
 	if(argc>2)
 	{
 		data_start=atoi(argv[2]);
@@ -293,7 +273,6 @@ int get_data_end(char *buf)
 		size = read_disk_sector (fd, i, &read_buf,BLOCK_COUNT);
       		CrcVal_2_1=calculate_CRC32_2(read_buf, size);
 		write_disk_sector (fd, i, &read_buf,BLOCK_COUNT);
-	//	sync();
 		size = read_disk_sector (fd, i, &read_buf,BLOCK_COUNT);
 		CrcVal_2_2=calculate_CRC32_2(read_buf, size);
 		if(CrcVal_2_1==CrcVal_2_2)Flag=1;
@@ -306,9 +285,7 @@ int get_data_end(char *buf)
 			}
 		if(Flag==1&&size==512*BLOCK_COUNT)
 			printf("CrcVal:%08X------right,%d\n",CrcVal_2_1,i);
-		//	printf("first CRC:%08X...%08X;secont CRC:%08X...%08X------right\n",CrcVal_1[0],CrcVal_1[99],CrcVal_2[0],CrcVal_2[99]);
 	}
-//	printf("waiting\n");
 	close (fd);
 	free(read_buf);
 

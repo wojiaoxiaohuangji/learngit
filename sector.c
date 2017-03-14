@@ -1,4 +1,4 @@
-/* y hugang at 6/8 9:40 */
+/* by hugang at 6/8 9:40 */
   /* mod by jevan at 31/8 11:56 */
   /* read some disk a sector */
 #define __USE_FILE_OFFSET64		//为了调用llseek，open打开大文件，需要添加宏修正

@@ -1,7 +1,7 @@
 #define __USE_FILE_OFFSET64		//为了调用llseek，open打开大文件，需要添加宏修正
 #define __USE_LARGEFILE64
 #define _LARGEFILE64_SOURCE
- #include <stdio.h>
+ //#include <stdio.h>
  #include <errno.h>
   #include <stdlib.h>
  #include <unistd.h>
@@ -221,6 +221,19 @@ static u32 calculate_CRC32(void *pStart, u32 uSize,int Flag)	//暂时没用到
 	}
 	return write(fd, *p, sectorsize*sectorcount);
   }
+    void dump_disk_sector (char *p, int size)
+  {
+    int i;
+    for (i = 0; i < size; i++)
+      {
+        if (i % 16 == 0 && i != 0)
+      printf ("\n");
+        printf ("%2x ",/* (unsigned int) p & 0xff*/(unsigned char)*p++);
+      }
+  
+    printf ("\n");
+    return;
+  }
   
 int get_data_start(char *buf)
 {
@@ -228,7 +241,7 @@ int get_data_start(char *buf)
 }
 int get_data_end(char *buf)
 {
-	(*((unsigned int *)(buf+32)));
+	return(*((unsigned int *)(buf+32)));
 }
   int main (int argc,char* argv[])
   {
@@ -255,6 +268,7 @@ int get_data_end(char *buf)
 	}
 	read_buf= (char *) malloc (512*BLOCK_COUNT);
 	read_disk_sector(fd,0,&read_buf,1);
+	//dump_disk_sector(read_buf,512);
 	data_end=(unsigned  int )get_data_end(read_buf);
 	data_start=(unsigned int)get_data_start(read_buf);
 	printf("the start of data is %d,the end if %d\n",data_start,data_end);
@@ -268,7 +282,7 @@ int get_data_end(char *buf)
 		data_start=atoi(argv[2]);
 		data_end=data_start+atoi(argv[3]);
 	}
-	for(i=data_start;i<data_end-data_start;i++)
+	for(i=data_start;i<data_end;i++)
 	{
 		size = read_disk_sector (fd, i, &read_buf,BLOCK_COUNT);
       		CrcVal_2_1=calculate_CRC32_2(read_buf, size);
